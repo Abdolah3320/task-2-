@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Scoring System</title>
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --secondary-color: #00cec9;
+            --background-color: #f9f9f9;
+            --text-color: #2d3436;
+            --border-color: #dfe6e9;
+            --card-background: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            background-color: var(--card-background);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem;
+            background-color: transparent;
+            color: var(--text-color);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 400;
+            text-transform: uppercase;
+        }
+
+        .tab:hover, .tab.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            background-color: var(--card-background);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 1rem;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .input-group {
+            display: flex;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        input, select {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background-color: #00b5b5;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 0.5rem;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            background-color: var(--card-background);
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        tr {
+            transition: transform 0.2s ease;
+        }
+
+        tr:hover {
+            transform: translateY(-2px);
+        }
+
+        tbody tr {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        tbody tr td:first-child {
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+        }
+
+        tbody tr td:last-child {
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tournament Scoring System</h1>
+        <div class="tabs">
+            <button class="tab active" data-target="participants">Participants</button>
+            <button class="tab" data-target="events">Events</button>
+            <button class="tab" data-target="scores">Scores</button>
+            <button class="tab" data-target="results">Results</button>
+        </div>
+
+        <div id="participants" class="tab-content active">
+            <h2>Participants</h2>
+            <div class="input-group">
+                <input type="text" id="participantName" placeholder="Participant Name">
+                <input type="text" id="teamName" placeholder="Team Name (Optional)" style="display: none;">
+                <select id="participantType">
+                    <option value="individual">Individual</option>
+                    <option value="team">Team</option>
+                </select>
+                <button id="addParticipant">Add Participant</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Team</th>
+                    </tr>
+                </thead>
+                <tbody id="participantTableBody"></tbody>
+            </table>
+        </div>
+
+        <div id="events" class="tab-content">
+            <h2>Events</h2>
+            <div class="input-group">
+                <input type="text" id="eventName" placeholder="Event Name">
+                <select id="eventType">
+                    <option value="individual">Individual</option>
+                    <option value="team">Team</option>
+                </select>
+                <button id="addEvent">Add Event</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody id="eventTableBody"></tbody>
+            </table>
+        </div>
+
+        <div id="scores" class="tab-content">
+            <h2>Scores</h2>
+            <div class="input-group">
+                <select id="scoreParticipant"></select>
+                <select id="scoreEvent"></select>
+                <input type="number" id="scoreValue" placeholder="Score">
+                <button id="addScore">Add Score</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Participant</th>
+                        <th>Event</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody id="scoreTableBody"></tbody>
+            </table>
+        </div>
+
+        <div id="results" class="tab-content">
+            <h2>Results</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Participant</th>
+                        <th>Total Score</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let database = {
+            participants: [],
+            events: [],
+            scores: []
+        };
+
+        const participantNameInput = document.getElementById('participantName');
+        const teamNameInput = document.getElementById('teamName');
+        const participantTypeInput = document.getElementById('participantType');
+        const eventNameInput = document.getElementById('eventName');
+        const eventTypeInput = document.getElementById('eventType');
+        const scoreParticipantSelect = document.getElementById('scoreParticipant');
+        const scoreEventSelect = document.getElementById('scoreEvent');
+        const scoreValueInput = document.getElementById('scoreValue');
+        const participantTableBody = document.getElementById('participantTableBody');
+        const eventTableBody = document.getElementById('eventTableBody');
+        const scoreTableBody = document.getElementById('scoreTableBody');
+        const resultsTableBody = document.getElementById('resultsTableBody');
+
+        function loadInitialData() {
+            renderParticipants();
+            renderEvents();
+            renderScores();
+            updateParticipantSelect();
+            updateEventSelect();
+        }
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelector('.tab.active').classList.remove('active');
+                tab.classList.add('active');
+                document.querySelector('.tab-content.active').classList.remove('active');
+                document.getElementById(tab.dataset.target).classList.add('active');
+            });
+        });
+
+        participantTypeInput.addEventListener('change', () => {
+            teamNameInput.style.display = participantTypeInput.value === 'team' ? 'block' : 'none';
+        });
+
+        document.getElementById('addParticipant').addEventListener('click', () => {
+            const participantName = participantNameInput.value.trim();
+            const teamName = teamNameInput.value.trim();
+            if (participantName) {
+                const existingTeam = database.participants.find(p => p.team === teamName);
+                if (participantTypeInput.value === 'team' && existingTeam && existingTeam.members.length >= 5) {
+                    alert('A team cannot have more than 5 members.');
+                    return;
+                }
+                const newParticipant = { id: database.participants.length + 1, name: participantName, team: teamName || 'Individual' };
+                if (participantTypeInput.value === 'team' && teamName) {
+                    if (existingTeam) {
+                        existingTeam.members.push(newParticipant);
+                    } else {
+                        database.participants.push({ id: database.participants.length + 1, name: teamName, team: teamName, members: [newParticipant] });
+                    }
+                } else {
+                    database.participants.push(newParticipant);
+                }
+                participantNameInput.value = '';
+                teamNameInput.value = '';
+                renderParticipants();
+                updateParticipantSelect();
+            }
+        });
+
+        document.getElementById('addEvent').addEventListener('click', () => {
+            const eventName = eventNameInput.value.trim();
+            const eventType = eventTypeInput.value;
+            if (eventName) {
+                database.events.push({ id: database.events.length + 1, name: eventName, type: eventType });
+                eventNameInput.value = '';
+                renderEvents();
+                updateEventSelect();
+            }
+        });
+
+        document.getElementById('addScore').addEventListener('click', () => {
+            const participantId = scoreParticipantSelect.value;
+            const eventId = scoreEventSelect.value;
+            const scoreValue = parseFloat(scoreValueInput.value);
+            if (participantId && eventId && !isNaN(scoreValue)) {
+                const participant = database.participants.find(p => p.id === Number(participantId));
+                if (participant.members) {
+                    const totalScore = participant.members.reduce((acc, member) => {
+                        const memberScores = database.scores.filter(s => s.participantId === member.id);
+                        return acc + memberScores.reduce((total, s) => total + s.score, 0);
+                    }, 0);
+                    database.scores.push({ participantId: Number(participantId), eventId: Number(eventId), score: totalScore + scoreValue });
+                } else {
+                    database.scores.push({ participantId: Number(participantId), eventId: Number(eventId), score: scoreValue });
+                }
+                scoreValueInput.value = '';
+                renderScores();
+                renderResults();
+            }
+        });
+
+        function renderParticipants() {
+            participantTableBody.innerHTML = database.participants.map(p => {
+                if (p.members) {
+                    return `<tr><td>${p.id}</td><td>${p.name}</td><td>${p.members.map(m => m.name).join(', ')}</td></tr>`;
+                } else {
+                    return `<tr><td>${p.id}</td><td>${p.name}</td><td>${p.team}</td></tr>`;
+                }
+            }).join('');
+        }
+
+        function renderEvents() {
+            eventTableBody.innerHTML = database.events.map(e => `<tr><td>${e.id}</td><td>${e.name}</td><td>${e.type}</td></tr>`).join('');
+        }
+
+        function renderScores() {
+            scoreTableBody.innerHTML = database.scores.map(s => {
+                const participant = database.participants.find(p => p.id === s.participantId);
+                const event = database.events.find(e => e.id === s.eventId);
+                return `<tr><td>${participant.name}</td><td>${event.name}</td><td>${s.score}</td></tr>`;
+            }).join('');
+        }
+
+        function renderResults() {
+            const totalScores = database.scores.reduce((acc, score) => {
+                acc[score.participantId] = (acc[score.participantId] || 0) + score.score;
+                return acc;
+            }, {});
+
+            const results = Object.entries(totalScores).map(([id, total]) => {
+                const participant = database.participants.find(p => p.id === Number(id));
+                return { name: participant.name, total, id: participant.id };
+            });
+
+            results.sort((a, b) => b.total - a.total);
+            resultsTableBody.innerHTML = results.map((r, index) => `<tr><td>${index + 1}</td><td>${r.name}</td><td>${r.total}</td></tr>`).join('');
+        }
+
+        function updateParticipantSelect() {
+            scoreParticipantSelect.innerHTML = database.participants.map(p => `<option value="${p.id}">${p.team !== 'Individual' ? p.name : p.name}</option>`).join('');
+        }
+
+        function updateEventSelect() {
+            scoreEventSelect.innerHTML = database.events.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
+        }
+
+        loadInitialData();
+    </script>
+</body>
+</html>
