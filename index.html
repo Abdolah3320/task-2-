@@ -262,6 +262,19 @@
             scores: []
         };
 
+        // Load data from local storage
+        function loadFromLocalStorage() {
+            const storedData = localStorage.getItem('tournamentData');
+            if (storedData) {
+                database = JSON.parse(storedData);
+            }
+        }
+
+        // Save data to local storage
+        function saveToLocalStorage() {
+            localStorage.setItem('tournamentData', JSON.stringify(database));
+        }
+
         const participantNameInput = document.getElementById('participantName');
         const teamNameInput = document.getElementById('teamName');
         const participantTypeInput = document.getElementById('participantType');
@@ -301,12 +314,28 @@
             const teamName = teamNameInput.value.trim();
             if (participantName) {
                 const existingTeam = database.participants.find(p => p.team === teamName);
-                if (participantTypeInput.value === 'team' && existingTeam && existingTeam.members.length >= 5) {
-                    alert('A team cannot have more than 5 members.');
+                const isTeam = participantTypeInput.value === 'team';
+                const isIndividual = participantTypeInput.value === 'individual';
+
+                if (isTeam) {
+                    const totalTeams = database.participants.filter(p => p.members).length;
+                    if (totalTeams >= 4 && !existingTeam) {
+                        alert('Cannot have more than 4 teams.');
+                        return;
+                    }
+                    if (existingTeam && existingTeam.members.length >= 5) {
+                        alert('A team cannot have more than 5 members.');
+                        return;
+                    }
+                }
+
+                if (isIndividual && database.participants.filter(p => !p.members).length >= 20) {
+                    alert('Cannot have more than 20 individual participants.');
                     return;
                 }
+
                 const newParticipant = { id: database.participants.length + 1, name: participantName, team: teamName || 'Individual' };
-                if (participantTypeInput.value === 'team' && teamName) {
+                if (isTeam && teamName) {
                     if (existingTeam) {
                         existingTeam.members.push(newParticipant);
                     } else {
@@ -319,6 +348,7 @@
                 teamNameInput.value = '';
                 renderParticipants();
                 updateParticipantSelect();
+                saveToLocalStorage();
             }
         });
 
@@ -337,7 +367,7 @@
             const participantId = scoreParticipantSelect.value;
             const eventId = scoreEventSelect.value;
             const scoreValue = parseFloat(scoreValueInput.value);
-            if (participantId && eventId && !isNaN(scoreValue)) {
+            if (participantId && eventId && !isNaN(scoreValue) && scoreValue >= 0) {
                 const participant = database.participants.find(p => p.id === Number(participantId));
                 if (participant.members) {
                     const totalScore = participant.members.reduce((acc, member) => {
@@ -351,6 +381,9 @@
                 scoreValueInput.value = '';
                 renderScores();
                 renderResults();
+                saveToLocalStorage();
+            } else {
+                alert('Score must be a non-negative number.');
             }
         });
 
@@ -399,6 +432,7 @@
             scoreEventSelect.innerHTML = database.events.map(e => `<option value="${e.id}">${e.name}</option>`).join('');
         }
 
+        loadFromLocalStorage();
         loadInitialData();
     </script>
 </body>
